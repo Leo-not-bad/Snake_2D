@@ -43,6 +43,7 @@ void menu_of_level(string&, Sprite&, short, short);
 void menu_of_music(Sprite&);
 void menu_of_table_of_leaders(string&, Sprite&, float, float, short, short, short, short);
 void preparing_data_base();
+void menu_of_end_of_game(string&);
 
 
 struct snake_body
