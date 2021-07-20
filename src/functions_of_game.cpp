@@ -190,12 +190,19 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 			if (p.type == Event::Closed)
 			{
 				window.close();
-				preparing_data_base();
-				current_player.name_of_player = string1;
-				current_player.level = string_for_level;
-				current_player.score = value_of_score;
-				current_player.return_func_4() << current_player;
-				current_player.return_func_4().close();
+				
+				for (size_t i = 0; i < 20; ++i)
+				for (size_t j = 0; j < 40; ++j)
+					Field[i][j] = 0;
+
+			preparing_data_base();
+			current_player.name_of_player = string1;
+			current_player.level = string_for_level;
+			current_player.score = value_of_score;
+			current_player.return_func_4() << current_player;
+			current_player.return_func_4().close();
+				
+			menu_of_end_of_game(string1);
 			}
 
 			if (p.type == Event::KeyPressed)
@@ -355,12 +362,19 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 		if (check(snake_len, body_coordinates))
 		{
 			window.close(); // end of game
+			
+			for (size_t i = 0; i < 20; ++i)
+				for (size_t j = 0; j < 40; ++j)
+					Field[i][j] = 0;
+
 			preparing_data_base();
 			current_player.name_of_player = string1;
 			current_player.level = string_for_level;
 			current_player.score = value_of_score;
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
+			
+			menu_of_end_of_game(string1);
 		}
 
 
@@ -543,12 +557,19 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 		else if ((body_coordinates[total_elements - 1].x != 0 && body_coordinates[total_elements - 1].y != 0) && (head.x1 == pointx && head.y1 == pointy))
 		{
 			window.close(); // end of game
+			
+			for (size_t i = 0; i < 20; ++i)
+				for (size_t j = 0; j < 40; ++j)
+					Field[i][j] = 0;
+
 			preparing_data_base();
 			current_player.name_of_player = string1;
 			current_player.level = string_for_level;
 			current_player.score = value_of_score;
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
+			
+			menu_of_end_of_game(string1);
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
