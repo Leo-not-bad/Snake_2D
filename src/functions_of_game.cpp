@@ -1026,3 +1026,57 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 		window_head.display();
 	}
 }
+
+void menu_of_end_of_game(string& string)
+{
+	RenderWindow window_end_of_game(VideoMode(400, 400), "If you think you ready", Style::Titlebar);
+	const char string_of_end[] = "You lose, try agian if you don't afraid;)";
+	Font font_of_symbols;
+	font_of_symbols.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
+	Text text_for_end;
+	text_for_end.setFont(font_of_symbols);
+	text_for_end.setString(string_of_end);
+	text_for_end.setCharacterSize(22);
+	text_for_end.setFillColor(Color::Black);
+
+	Texture texture_main_menu_field, texture_bottons_restart, texture_bottons_exit;
+	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
+	texture_bottons_restart.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_restart.png");
+	texture_bottons_exit.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_exit.png");
+
+	Sprite sprite_main_menu_field(texture_main_menu_field), sprite_bottons_restart(texture_bottons_restart), sprite_bottons_exit(texture_bottons_exit);
+
+	while (window_end_of_game.isOpen())
+	{
+		Event p_end_of_game;
+
+		while (window_end_of_game.pollEvent(p_end_of_game))
+		{
+			if (p_end_of_game.type == Event::MouseButtonPressed)
+			{
+				if (p_end_of_game.mouseButton.button == Mouse::Left)
+				{
+					if (p_end_of_game.mouseButton.x > 50 && p_end_of_game.mouseButton.x < 187 && p_end_of_game.mouseButton.y > 90 && p_end_of_game.mouseButton.y < 145)
+					{
+						window_end_of_game.close();
+						start_window_of_game(string, 0.3, 0.01, 100, 255, 0, 0);
+					}
+
+					else if (p_end_of_game.mouseButton.x > 231 && p_end_of_game.mouseButton.x < 350 && p_end_of_game.mouseButton.y > 90 && p_end_of_game.mouseButton.y < 145)
+						window_end_of_game.close();
+				}
+			}
+		}
+
+
+		window_end_of_game.draw(sprite_main_menu_field);
+		sprite_bottons_restart.setPosition(50, 90);
+		sprite_bottons_exit.setPosition(231, 90);
+		window_end_of_game.draw(sprite_bottons_restart);
+		window_end_of_game.draw(sprite_bottons_exit);
+		text_for_end.setPosition(15, 40);
+		window_end_of_game.draw(text_for_end);
+
+		window_end_of_game.display();
+	}
+}
