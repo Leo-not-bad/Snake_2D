@@ -636,18 +636,76 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 
 void menu_of_field_for_input()
 {	
-	string string;
-
-	cout << "input your nickname without spaces, it must be not longer than 7 characters:";
-	cin >> string;
-
-	while (string.size() > 7)
+	RenderWindow input_window(VideoMode(400, 400), "Table of leaders", Style::Titlebar);
+	Texture texture_main_menu_field, texture_field_for_input;
+	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
+	texture_field_for_input.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Field_for_input.png");
+	Sprite sprite_main_menu_field(texture_main_menu_field), sprite_field_for_input(texture_field_for_input);
+	Color sprite_color = sprite_field_for_input.getColor();
+	Font font_of_nickname_symbols;
+	font_of_nickname_symbols.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
+	Text nickname_symbols, template_text;
+	nickname_symbols.setFont(font_of_nickname_symbols);
+	nickname_symbols.setCharacterSize(32);
+	nickname_symbols.setFillColor(Color::Black);
+	template_text.setFont(font_of_nickname_symbols);
+	template_text.setCharacterSize(20);
+	template_text.setFillColor(Color::Black);
+	
+	string nickname, template_text_;
+	template_text_ = "Enter your nickname";
+	template_text.setString(template_text_);
+	template_text.setPosition(67, 119);
+	bool flug = 0;
+	
+	while (input_window.isOpen())
 	{
-		cout << endl << "your nickname is very long, repair input:";
-		cin >> string;
-	}
+		Event event_;
 
-	start_window_of_game(string, 0.3, 0.01, 100, 255, 0, 0);
+		while (input_window.pollEvent(event_))
+		{
+
+			if (event_.type == Event::TextEntered && flug)
+			{
+				if (event_.text.unicode < 128 && event_.key.code != 8)
+				
+					nickname.push_back(static_cast<char>(event_.text.unicode));
+
+				if (nickname.size() > 7)
+					nickname.erase(nickname.size() - 1);
+
+				else if (event_.key.code == 8 && nickname.size() >= 1)
+					nickname.erase(nickname.size() - 1);
+			}
+
+		    else if (event_.type == Event::MouseButtonPressed && !flug && event_.mouseButton.button == Mouse::Left && (event_.mouseButton.x >= 40 && event_.mouseButton.x <= 272) && (event_.mouseButton.y >= 104 && event_.mouseButton.y <= 162))
+			{
+					  sprite_field_for_input.setColor(Color(255, 244, 233, 100));
+					  flug = 1;
+					  //расскрасить только поле для ввода 
+			}
+
+			else if (event_.type == Event::MouseButtonPressed && event_.mouseButton.button == Mouse::Left && (event_.mouseButton.x >= 275 && event_.mouseButton.x <= 356) && (event_.mouseButton.y >= 104 && event_.mouseButton.y <= 162) && flug && (nickname.size() >= 3 && nickname.size() <= 7))//registration of cursor in place "go"   
+			{
+				  input_window.close();
+				  start_window_of_game(nickname, sprite_main_menu_field, 0.3, 0.01, 100, 255, 0, 0);
+			}
+		  
+			
+		}
+
+		input_window.draw(sprite_main_menu_field);
+		sprite_field_for_input.setPosition(40, 100);
+		input_window.draw(sprite_field_for_input);
+		nickname_symbols.setString(nickname);
+		nickname_symbols.setPosition(50, 113);
+		input_window.draw(nickname_symbols);
+
+		if (!flug)
+		  input_window.draw(template_text);
+		  
+		input_window.display();
+	}
 }
 
 void preparing_data_base()
