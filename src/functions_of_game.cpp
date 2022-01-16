@@ -544,13 +544,25 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				}
 				}
 
-				for (int i = 0; i < snake_len - 1; ++i)
-					if ((pointx == head.x1 && pointy == head.y1) || (pointx == body_coordinates[i].x && pointy == body_coordinates[i].y))
+				int i = 0;
+				short itter = 0;
+				while (itter != snake_len - 1)
+				{
+					for (; i < snake_len - 1; ++i)
 					{
-						pointx = 1 + rand() % 39;
-						pointy = 1 + rand() % 19;
-						Field[pointy][pointx] = Field_points_of_eat;
+						if ((pointx == head.x1 && pointy == head.y1) || (pointx == body_coordinates[i].x && pointy == body_coordinates[i].y))
+						{
+							pointx = 1 + rand() % 39;
+							pointy = 1 + rand() % 19;
+							//Field[pointy][pointx] = Field_points_of_eat;
+							i = 0;
+							itter = 0;
+						}
+						else
+							++itter;
 					}
+				}
+				
 				Field[pointy][pointx] = Field_points_of_eat;
 			}
 		}
