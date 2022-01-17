@@ -1020,32 +1020,24 @@ void menu_of_color(string& string, Sprite& sprite_main_menu_field, float delay, 
 	}
 }
 
-void menu_of_music(Sprite& sprite_main_menu_field)
-{
-	RenderWindow window_music(VideoMode(400, 400), "Music", Style::Titlebar);
-
-	while (window_music.isOpen())
-	{
-
-	}
-
-	//start_window_of_game();
-}
-
 void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0.01, short total_elemets = 100, short snake_color_over = 255, short snake_color_for_purple = 0, short value_for_show_level = 0)
 {
+	Music music_;
+	music_.openFromFile("Jumping_Wall.wav");
+	music_.play();
+	music_.setLoop(true);
+
 	RenderWindow window_head(VideoMode(400, 400), "Main Menu", Style::Close);
 
-	Texture texture_main_menu_field, texture_bottons_sound, texture_bottons_level, texture_bottons_snake_color, texture_bottons_start_game, texture_title, texture_bottons_data_of_players;
+	Texture texture_main_menu_field, texture_bottons_level, texture_bottons_snake_color, texture_bottons_start_game, texture_title, texture_bottons_data_of_players;
 	texture_title.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\title.png");
-	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
 	texture_bottons_start_game.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_start_game.png");
-	texture_bottons_sound.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_sound.png");
 	texture_bottons_level.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_level.png");
 	texture_bottons_snake_color.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_snake_color.png");
 	texture_bottons_data_of_players.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_table_of_leaders.png");
-	Sprite sprite_main_menu_field(texture_main_menu_field), sprite_bottons_sound(texture_bottons_sound), sprite_bottons_level(texture_bottons_level), sprite_bottons_snake_color(texture_bottons_snake_color), sprite_bottons_start_game(texture_bottons_start_game), sprite_title(texture_title), sprite_bottons_data_of_players(texture_bottons_data_of_players);
+	Sprite sprite_bottons_level(texture_bottons_level), sprite_bottons_snake_color(texture_bottons_snake_color), sprite_bottons_start_game(texture_bottons_start_game), sprite_title(texture_title), sprite_bottons_data_of_players(texture_bottons_data_of_players);
 	bool turn_sound = true;
+
 	while (window_head.isOpen())
 	{
 		Event p_head;
@@ -1053,37 +1045,44 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 		while (window_head.pollEvent(p_head))
 		{
 			if (p_head.type == Event::Closed)
+			{
 				window_head.close();
+				music_.stop();
+			}
+			    
 
 			if (p_head.type == Event::MouseButtonPressed)
 			{
 				if (p_head.mouseButton.button == Mouse::Left)
 				{
-					if ((p_head.mouseButton.x >= 130 && p_head.mouseButton.x <= 262) && (p_head.mouseButton.y >= 60 && p_head.mouseButton.y <= 395))
+					if ((p_head.mouseButton.x >= 130 && p_head.mouseButton.x <= 264) && (p_head.mouseButton.y >= 64 && p_head.mouseButton.y <= 369))
 					{
-						if (p_head.mouseButton.y >= 60 && p_head.mouseButton.y <= 130)
+						if (p_head.mouseButton.y >= 64 && p_head.mouseButton.y <= 139)
 						{
 							window_head.close();
-							start(string, delay, delay_tap, total_elemets, snake_color_over, snake_color_for_purple, value_for_show_level);
+							music_.stop();
+							start(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
 						}
-						else if (p_head.mouseButton.y >= 140 && p_head.mouseButton.y <= 180)
-						{
-
-						}
-						else if (p_head.mouseButton.y >= 200 && p_head.mouseButton.y <= 242)
+						else if (p_head.mouseButton.y >= 154 && p_head.mouseButton.y <= 195)
 						{
 							window_head.close();
-							menu_of_level(string, sprite_main_menu_field, snake_color_over, snake_color_for_purple);
+							music_.stop();
+							menu_of_level(string, sprite_main_menu_field, snake_color_over, snake_color_for_purple, Switch);
+							
 						}
-						else if (p_head.mouseButton.y >= 260 && p_head.mouseButton.y <= 335)
+						else if (p_head.mouseButton.y >= 224 && p_head.mouseButton.y <= 269)
 						{
 							window_head.close();
-							menu_of_color(string, sprite_main_menu_field, delay, delay_tap, total_elemets, value_for_show_level);
+							music_.stop();
+							menu_of_color(string, sprite_main_menu_field, delay, delay_tap, total_elements, value_for_show_level, Switch);
+							
 						}
-						else if (p_head.mouseButton.y >= 353 && p_head.mouseButton.y <= 395)
+						else if (p_head.mouseButton.y >= 294 && p_head.mouseButton.y <= 369)
 						{
 							window_head.close();
-							menu_of_table_of_leaders(string, sprite_main_menu_field, delay, delay_tap, total_elemets, value_for_show_level, snake_color_over, snake_color_for_purple);
+							music_.stop();
+							menu_of_table_of_leaders(string, sprite_main_menu_field, delay, delay_tap, total_elements, value_for_show_level, snake_color_over, snake_color_for_purple, Switch);
+							
 						}
 					}
 				}
@@ -1095,13 +1094,11 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 		window_head.draw(sprite_title);
 		sprite_bottons_start_game.setPosition(127, 60);
 		window_head.draw(sprite_bottons_start_game);
-		sprite_bottons_sound.setPosition(130, 140);
-		window_head.draw(sprite_bottons_sound);
-		sprite_bottons_level.setPosition(130, 200);
+		sprite_bottons_level.setPosition(130, 150);
 		window_head.draw(sprite_bottons_level);
-		sprite_bottons_snake_color.setPosition(130, 255);
+		sprite_bottons_snake_color.setPosition(129, 220);
 		window_head.draw(sprite_bottons_snake_color);
-		sprite_bottons_data_of_players.setPosition(130, 349);
+		sprite_bottons_data_of_players.setPosition(126, 290);
 		window_head.draw(sprite_bottons_data_of_players);
 
 		window_head.display();
