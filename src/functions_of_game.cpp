@@ -6,38 +6,6 @@ const int height = 20; // height of field
 const int width = 40; // width of field
 int Field[height][width] = { 0 };
 
-//class data_base
-//{
-//public:
-//
-//	string name_of_player;
-//	string level;
-//	int score;
-//
-//	template <typename T>
-//	T return_func(T value);
-//
-//	string return_func_1();
-//
-//	string return_func_2();
-//
-//
-//	int return_func_3();
-//
-//	ofstream return_func_4();
-//
-//	data_base();
-//
-//
-//	friend istream& operator >> (istream& object, data_base& object_1);
-//
-//	friend ostream& operator << (ostream& object, data_base const& object_1);
-//};
-//snake_head head;
-//const int height = 20; // height of field
-//const int width = 40; // width of field
-//int Field[height][width] = { 0 };
-//
 template <typename T>
 T data_base::return_func(T value)
 {
