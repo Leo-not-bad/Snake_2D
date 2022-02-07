@@ -1,10 +1,43 @@
-#include "main_header.h"
+#include "Consts.h"
+
 
 snake_head head;
 const int height = 20; // height of field
 const int width = 40; // width of field
 int Field[height][width] = { 0 };
 
+//class data_base
+//{
+//public:
+//
+//	string name_of_player;
+//	string level;
+//	int score;
+//
+//	template <typename T>
+//	T return_func(T value);
+//
+//	string return_func_1();
+//
+//	string return_func_2();
+//
+//
+//	int return_func_3();
+//
+//	ofstream return_func_4();
+//
+//	data_base();
+//
+//
+//	friend istream& operator >> (istream& object, data_base& object_1);
+//
+//	friend ostream& operator << (ostream& object, data_base const& object_1);
+//};
+//snake_head head;
+//const int height = 20; // height of field
+//const int width = 40; // width of field
+//int Field[height][width] = { 0 };
+//
 template <typename T>
 T data_base::return_func(T value)
 {
@@ -71,23 +104,90 @@ int check(int snake_len, snake_body* body_coordinates)
 	return 0;
 }
 
-void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short total_elements = 100, short snake_color_over = 255, short snake_color_for_purple = 0, short value_for_show_level = 0)
+void change_head_rotation(Sprite& sprite_snake_head, int moving, bool rotation, short definder, short snake_color)
+{
+	if (moving == -1 && !rotation && !definder)
+	{
+		if (Field[head.y1][head.x1 + 1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(0, 20);
+			sprite_snake_head.rotate(90.f);
+		}
+		else if (Field[head.y1][head.x1 - 1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(0, 20);
+			sprite_snake_head.rotate(-90.f);
+		}
+	}
+	else if (moving == -1 && !rotation && definder == 1)
+	{
+		if (Field[head.y1 - 1][head.x1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(0, 0);
+			sprite_snake_head.rotate(90.f);
+		}
+		else if (Field[head.y1 + 1][head.x1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(0, 0);
+			sprite_snake_head.rotate(-90.f);
+		}
+	}
+	else if (moving == 1 && !rotation && definder == 2)
+	{
+		if (Field[head.y1 - 1][head.x1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(20, 20);
+			sprite_snake_head.rotate(-90.f);
+		}
+		else if (Field[head.y1 + 1][head.x1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(20, 20);
+			sprite_snake_head.rotate(90.f);
+		}
+	}
+	else if (moving == 1 && !rotation && definder == 3)
+	{
+		if (Field[head.y1][head.x1 + 1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(20, 0);
+			sprite_snake_head.rotate(-90.f);
+		}
+		else if (Field[head.y1][head.x1 - 1] == snake_color)
+		{
+			sprite_snake_head.setOrigin(20, 0);
+			sprite_snake_head.rotate(90.f);
+		}
+	}
+}
+
+void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short total_elements = 30, short snake_color_over = 255, short snake_color_for_purple = 0, short value_for_show_level = 0, bool Switch = 0)
 {
 	snake_body* body_coordinates = new snake_body[total_elements];
 
 	snake_body last_coordinates_of_the_snake;
 
+	SoundBuffer sound_buffer, sound_buffer_1;
+	sound_buffer.loadFromFile("Take_event.wav");
+	sound_buffer_1.loadFromFile("Knocked_out.wav");
+	Sound sound_event(sound_buffer), sound_event_1(sound_buffer_1);
+
+
+	
 	RenderWindow window(VideoMode(950, 400), "Snake 2D!", Style::Close);
 
-	srand(time(0));
+	/*srand(time(0));*/
 	Clock clock_object;
 	data_base current_player;
-	float time;
+	float time_;
+	short definder = 1;
 	float timer = 0.0, delay_save = delay;
 	int moving = 0, moving1 = 0, moving2 = 0, moving3 = 0, value_of_score = 0;
 	bool first_appearance = true;
 	body_coordinates[total_elements - 1].x = 0;
 	body_coordinates[total_elements - 1].y = 0;
+	short moving_ = -1;
+	bool rot = 1;
+	short counter_of_body = 2;
 
 	Texture texture_snake_head, texture_snake_body, texture_money_pack, texture_playing_field;
 	texture_snake_head.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Snake_head.jpg");
@@ -95,7 +195,7 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 	texture_money_pack.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Money_pack.jpg");
 	texture_playing_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\playing_field_1.png");
 	Font font_of_symbols;
-	Text text_for_level, text_from_symbols, text_from_symbols_1, text_from_symbols_2, text_from_symbols_3, text_from_symbols_4, text_from_symbols_5, text_from_symbols_6;
+	Text text_for_level, text_from_symbols, text_from_symbols_1, text_from_symbols_2, text_from_symbols_3, text_from_symbols_4, text_from_symbols_5, text_from_symbols_6, body_counts, body_counts_, body_counts1, body_counts2;
 	font_of_symbols.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
 	text_from_symbols.setFont(font_of_symbols);
 	text_from_symbols.setString("Level:");
@@ -120,20 +220,37 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 	text_from_symbols_6.setFont(font_of_symbols);
 	text_from_symbols_6.setCharacterSize(15);
 	text_from_symbols_6.setFillColor(Color::Red);
-
+	body_counts.setFont(font_of_symbols);
+	body_counts.setCharacterSize(15);
+	body_counts.setFillColor(Color::Red);
+	body_counts.setString(to_string(total_elements));
+	body_counts_.setFont(font_of_symbols);
+	body_counts_.setCharacterSize(15);
+	body_counts_.setFillColor(Color::Red);
+	body_counts_.setString("/");
+	body_counts1.setFont(font_of_symbols);
+	body_counts1.setCharacterSize(15);
+	body_counts1.setFillColor(Color::Red);
+	body_counts2.setFont(font_of_symbols);
+	body_counts2.setCharacterSize(15);
+	body_counts2.setFillColor(Color::Red);
+	body_counts2.setString("of  body");
+	
 
 	Sprite sprite_snake_head(texture_snake_head), sprite_snake_body(texture_snake_body), sprite_money_pack(texture_money_pack), sprite_playing_field(texture_playing_field);
-	int pointx, pointy, snake_len = 3, snake_color, snake_color_head, Field_points_of_eat;
+	short pointx, pointy, snake_len, snake_color, snake_color_head, Field_points_of_eat;
 	bool Up1 = false, Left1 = true, Right1 = false, Down1 = false;
 	snake_color = 1;
 	snake_color_head = 2;
 	Field_points_of_eat = 3;
+	snake_len = 3;
 	bool acceleration = false; 
 	int snake_head_turnx = 0, snake_head_turny = 0;
 	string string_for_level;
 	bool traffic_up = false, traffic_left = true, traffic_right = false, traffic_down = false;
+	bool check_music_event = 0;
 	
-
+	
 	// initialization of string for level
 
 	switch (value_for_show_level)
@@ -177,9 +294,10 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 
 	while (window.isOpen())
 	{
-		time = clock_object.getElapsedTime().asSeconds();
+		srand(time(0));
+		time_ = clock_object.getElapsedTime().asSeconds();
 		clock_object.restart();
-		timer += time;
+		timer += time_;
 
 		// reading the movements and moving the snake
 
@@ -189,20 +307,21 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 		{
 			if (p.type == Event::Closed)
 			{
-				window.close();
-				
-				for (size_t i = 0; i < 20; ++i)
-				for (size_t j = 0; j < 40; ++j)
-					Field[i][j] = 0;
+				sound_event_1.play();
+				window.close(); // end of game
 
-			preparing_data_base();
-			current_player.name_of_player = string1;
-			current_player.level = string_for_level;
-			current_player.score = value_of_score;
-			current_player.return_func_4() << current_player;
-			current_player.return_func_4().close();
-				
-			menu_of_end_of_game(string1);
+				for (size_t i = 0; i < 20; ++i)
+					for (size_t j = 0; j < 40; ++j)
+						Field[i][j] = 0;
+
+				preparing_data_base();
+				current_player.name_of_player = string1;
+				current_player.level = string_for_level;
+				current_player.score = value_of_score;
+				current_player.return_func_4() << current_player;
+				current_player.return_func_4().close();
+				menu_of_end_of_game(string1, 0);
+				return;
 			}
 
 			if (p.type == Event::KeyPressed)
@@ -211,7 +330,12 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				{
 					if (Up1)
 						acceleration = true;
+					
+					rot = Up1;
 					moving = -1;
+					moving_ = moving;
+					definder = 0;
+					change_head_rotation(sprite_snake_head, moving, Up1, definder, snake_color);
 					Up1 = true;
 					Left1 = false;
 					Right1 = false;
@@ -220,7 +344,12 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				{
 					if (Left1)
 						acceleration = true;
+					
+					rot = Left1;
 					moving1 = -1;
+					moving_ = moving1;
+					definder = 1;
+					change_head_rotation(sprite_snake_head, moving1, Left1, definder, snake_color);
 					Left1 = true;
 					Down1 = false;
 					Up1 = false;
@@ -229,16 +358,27 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				{
 					if (Right1)
 						acceleration = true;
+		            
+					rot = Right1;
 					moving2 = 1;
+					moving_ = moving2;
+					definder = 2;
+					change_head_rotation(sprite_snake_head, moving2, Right1, definder, snake_color);
 					Right1 = true;
 					Up1 = false;
 					Down1 = false;
+					
 				}
 				else if ((Keyboard::isKeyPressed(Keyboard::Down)) && (!Up1))
 				{
 					if (Down1)
 						acceleration = true;
+			        
+					rot = Down1;
 					moving3 = 1;
+					moving_ = moving3;
+					definder = 3;
+					change_head_rotation(sprite_snake_head, moving3, Down1, definder, snake_color);
 					Down1 = true;
 					Left1 = false;
 					Right1 = false;
@@ -361,6 +501,7 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 
 		if (check(snake_len, body_coordinates))
 		{
+			sound_event_1.play();
 			window.close(); // end of game
 			
 			for (size_t i = 0; i < 20; ++i)
@@ -373,8 +514,8 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 			current_player.score = value_of_score;
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
-			
-			menu_of_end_of_game(string1);
+			menu_of_end_of_game(string1, 0);
+			return;
 		}
 
 
@@ -492,29 +633,31 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 
 		// first appearance of food
 
+		
 		if (first_appearance)
 		{
+			short itter_;
+			size_t i_;
 			pointx = 1 + rand() % 39;
 			pointy = 1 + rand() % 19;
 
-			int i = 0;
-			short itter = 0;
-
-			while (itter != snake_len - 1)
-			{
-
-				for (; i < snake_len - 1; ++i)
-					if ((pointx == head.x1) && (pointy == head.y1) || (pointx == body_coordinates[i].x && pointy == body_coordinates[i].y))
+			
+			do{
+				i_ = 0;
+				itter_ = 0;
+				for (;i_ < snake_len; ++i_)
+					if ((pointx == head.x1) && (pointy == head.y1) || (pointx == body_coordinates[i_].x && pointy == body_coordinates[i_].y))
 					{
 						pointx = 1 + rand() % 39;
 						pointy = 1 + rand() % 19;
-						i = 0;
-						itter = 0;
+						i_ = 0;
+						itter_ = 0;
 					}
 					else
-						++itter;
-			}
-			
+						++itter_;
+
+			} while (itter_ != snake_len);
+
 			Field[pointy][pointx] = Field_points_of_eat;
 		}
 		//////////////////////////////////////////////////////////////////////////////////////////////
@@ -529,8 +672,11 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				body_coordinates[snake_len - 1] = last_coordinates_of_the_snake;
 				Field[last_coordinates_of_the_snake.y][last_coordinates_of_the_snake.x] = snake_color;
 				snake_len += 1;
+				counter_of_body += 1;
+				check_music_event = 1;
 				pointx = 1 + rand() % 39;
 				pointy = 1 + rand() % 19;
+
 				switch (value_for_show_level)
 				{
 				case 0:
@@ -555,32 +701,42 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				}
 				}
 
-				int i = 0;
-				short itter = 0;
-				while (itter != snake_len - 1)
+				size_t i;
+				short itter;
+				size_t start_time, finish_time;
+				start_time = clock();
+				do
 				{
-					for (; i < snake_len - 1; ++i)
+					i = 0;
+					itter = 0;
+					for (;i < snake_len; ++i)
 					{
 						if ((pointx == head.x1 && pointy == head.y1) || (pointx == body_coordinates[i].x && pointy == body_coordinates[i].y))
 						{
+							srand(time(0));
 							pointx = 1 + rand() % 39;
 							pointy = 1 + rand() % 19;
-							//Field[pointy][pointx] = Field_points_of_eat;
+							/*Field[pointy][pointx] = Field_points_of_eat;*/
 							i = 0;
 							itter = 0;
 						}
 						else
 							++itter;
+
+						if ((((finish_time = clock()) - start_time) / 1000) >= 2)
+							break;
 					}
-				}
-				
+
+				} while (itter != snake_len && (((finish_time = clock()) - start_time) / 1000) < 2);
+						
 				Field[pointy][pointx] = Field_points_of_eat;
 			}
 		}
 		else if ((body_coordinates[total_elements - 1].x != 0 && body_coordinates[total_elements - 1].y != 0) && (head.x1 == pointx && head.y1 == pointy))
 		{
+			sound_event_1.play();
 			window.close(); // end of game
-			
+		
 			for (size_t i = 0; i < 20; ++i)
 				for (size_t j = 0; j < 40; ++j)
 					Field[i][j] = 0;
@@ -591,8 +747,8 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 			current_player.score = value_of_score;
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
-			
-			menu_of_end_of_game(string1);
+			menu_of_end_of_game(string1, 1);
+			return;
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -603,13 +759,14 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 		// output of elements on display
 
 		window.draw(sprite_playing_field);
-		for (int i = 0; i < height; ++i)
-			for (int j = 0; j < width; ++j)
+		for (size_t i = 0; i < height; ++i)
+			for (size_t j = 0; j < width; ++j)
 			{
 				if (!Field[i][j])
 					continue;
 				if (Field[i][j] == snake_color_head)
 				{
+					
 					sprite_snake_head.setPosition(head.x1 * 20, head.y1 * 20);
 					window.draw(sprite_snake_head);
 				}
@@ -620,8 +777,14 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 					window.draw(sprite_snake_body);
 				}
 			}
-		sprite_money_pack.setPosition(pointx * 20, pointy * 20);
-		window.draw(sprite_money_pack);
+
+		/*if (Field[pointy][pointx] == Field_points_of_eat)*/
+		
+			sprite_money_pack.setPosition(pointx * 20, pointy * 20);
+			window.draw(sprite_money_pack);
+		
+
+
 		text_from_symbols_3.setPosition(825, 120);
 		text_from_symbols.setPosition(825, 160);
 		text_from_symbols_1.setPosition(825, 200);
@@ -645,21 +808,38 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 		text_from_symbols_4.setPosition(872, 120);
 		text_from_symbols_5.setPosition(825, 240);
 		text_from_symbols_6.setPosition(872, 240);
+		body_counts1.setString(to_string(counter_of_body));
+		body_counts1.setPosition(826, 278);
+		body_counts_.setPosition(844, 278);
+		body_counts.setPosition(851, 278);
+		body_counts2.setPosition(883, 279);
 		window.draw(text_from_symbols_6);
 		window.draw(text_from_symbols_5);
 		window.draw(text_from_symbols_2);
 		window.draw(text_from_symbols_4);
+		window.draw(body_counts);
+		window.draw(body_counts_);
+		window.draw(body_counts1);
+		window.draw(body_counts2);
+
+		if (check_music_event)
+		{
+			sound_event.play();
+			check_music_event = 0;
+		}
 
 		window.display();
-
+	
 		//////////////////////////////////////////////////////////////////////////////////////////
 	}
+	
 	delete[] body_coordinates;
 }
 
+
 void menu_of_field_for_input()
 {	
-	RenderWindow input_window(VideoMode(400, 400), "Table of leaders", Style::Titlebar);
+	RenderWindow input_window(VideoMode(400, 400), "Field for input", Style::Titlebar);
 	Texture texture_main_menu_field, texture_field_for_input;
 	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
 	texture_field_for_input.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Field_for_input.png");
@@ -711,7 +891,8 @@ void menu_of_field_for_input()
 			else if (event_.type == Event::MouseButtonPressed && event_.mouseButton.button == Mouse::Left && (event_.mouseButton.x >= 275 && event_.mouseButton.x <= 356) && (event_.mouseButton.y >= 104 && event_.mouseButton.y <= 162) && flug && (nickname.size() >= 3 && nickname.size() <= 7))//registration of cursor in place "go"   
 			{
 				  input_window.close();
-				  start_window_of_game(nickname, sprite_main_menu_field, 0.3, 0.01, 100, 255, 0, 0);
+				  start_window_of_game(nickname, sprite_main_menu_field, 0.3, 0.01, 30, 255, 0, 0, 0);
+				  return;
 			}
 		  
 			
@@ -728,14 +909,16 @@ void menu_of_field_for_input()
 		  input_window.draw(template_text);
 		  
 		input_window.display();
+
 	}
 }
 
 void preparing_data_base()
 {
+
 	ifstream file_object("file_for_data_about_players.txt", ios::in);
 	vector <data_base> data_of_players;
-
+	
 	do
 	{
 		data_base intermediate_object;
@@ -776,10 +959,14 @@ void preparing_data_base()
 	}
 }
 
-void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, float delay, float delay_tap, short total_elements, short value_for_show_level, short snake_color_over, short snake_color_for_purple)
+void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, float delay, float delay_tap, short total_elements, short value_for_show_level, short snake_color_over, short snake_color_for_purple, bool Switch)
 {
 	RenderWindow window_of_show_data_about_players(VideoMode(400, 400), "Table of leaders", Style::Close);
 	ifstream file_object("file_for_data_about_players.txt", ios::in);
+	Texture texture_field_for_table;
+	texture_field_for_table.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Field_for_table.png");
+
+	Sprite sprite_field_for_table(texture_field_for_table);
 	vector <data_base> data_of_players;
 
 	while (file_object)
@@ -821,17 +1008,17 @@ void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, fl
 			if (p_data.type == Event::Closed)
 			{
 				window_of_show_data_about_players.close();
-			
-				start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+				start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+				return;
 			}
 		}
 
-		window_of_show_data_about_players.draw(sprite_main_menu_field);
+		window_of_show_data_about_players.draw(sprite_field_for_table);
 
 		Font font_of_symbols_;
 		Text text_from_symbols_[3];
 		font_of_symbols_.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
-		short y = 15, value_for_func_from_data_base = 0, x = 80;
+		short y = 35, value_for_func_from_data_base = 0, x = 68;
 
 		for (int i = 0; i < data_of_players.size(); ++i)
 		{
@@ -867,11 +1054,11 @@ void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, fl
 				value_for_func_from_data_base += 1;
 
 				if (value_for_func_from_data_base == 2)
-					x += 110;
+					x += 117;
 				else
-					x += 80;
+					x += 102;
 			}
-			x = 80;
+			x = 68;
 			y += 30;
 			value_for_func_from_data_base = 0;
 		}
@@ -880,7 +1067,7 @@ void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, fl
 	}
 }
 
-void menu_of_level(string& string, Sprite& sprite_main_menu_field, short snake_color_over, short snake_color_for_purple)
+void menu_of_level(string& string, Sprite& sprite_main_menu_field, short snake_color_over, short snake_color_for_purple, bool Switch)
 {
 	short total_elements, value_for_show_level;
 	float delay, delay_tap;
@@ -906,39 +1093,43 @@ void menu_of_level(string& string, Sprite& sprite_main_menu_field, short snake_c
 				{
 					if ((p_level.mouseButton.x >= 130 && p_level.mouseButton.x <= 260) && (p_level.mouseButton.y >= 50 && p_level.mouseButton.y <= 108))
 					{
-						total_elements = 100;
-						delay = 0.3;
-						delay_tap = 0.01;
-						value_for_show_level = 0;
+						total_elements = TOTAL_ELEMENTS;
+						delay = DELAY;
+						delay_tap = DELAY_TAP;
+						value_for_show_level = VALUE_FOR_SHOW_LEVEL;
 						window_level.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 					else if ((p_level.mouseButton.x >= 75 && p_level.mouseButton.x <= 325) && (p_level.mouseButton.y >= 120 && p_level.mouseButton.y <= 180))
 					{
-						total_elements = 200;
-						delay = 0.2;
-						delay_tap = 0.001;
-						value_for_show_level = 1;
+						total_elements = TOTAL_ELEMENTS_;
+						delay = DELAY_;
+						delay_tap = DELAY_TAP_;
+						value_for_show_level = VALUE_FOR_SHOW_LEVEL_;
 						window_level.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 					else if ((p_level.mouseButton.x >= 130 && p_level.mouseButton.x <= 263) && (p_level.mouseButton.y >= 195 && p_level.mouseButton.y <= 250))
 					{
-						total_elements = 300;
-						delay = 0.1;
-						delay_tap = 0.001;
-						value_for_show_level = 2;
+						total_elements = TOTAL_ELEMENTS__;
+						delay = DELAY__;
+						delay_tap = DELAY_TAP__;
+						value_for_show_level = VALUE_FOR_SHOW_LEVEL__;
 						window_level.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 					else if ((p_level.mouseButton.x >= 25 && p_level.mouseButton.x <= 375) && (p_level.mouseButton.y >= 265 && p_level.mouseButton.y <= 335))
 					{
-						total_elements = 400;
-						delay = 0.1;
-						delay_tap = 0.002;
-						value_for_show_level = 3;
+						total_elements = TOTAL_ELEMENTS_1;
+						delay = DELAY_1;
+						delay_tap = DELAY_TAP_1;
+						value_for_show_level = VALUE_FOR_SHOW_LEVEL_1;
 						window_level.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 				}
 			}
@@ -959,7 +1150,7 @@ void menu_of_level(string& string, Sprite& sprite_main_menu_field, short snake_c
 	}
 }
 
-void menu_of_color(string& string, Sprite& sprite_main_menu_field, float delay, float delay_tap, short total_elements, short value_for_show_level)
+void menu_of_color(string& string, Sprite& sprite_main_menu_field, float delay, float delay_tap, short total_elements, short value_for_show_level, bool Switch)
 {
 	RenderWindow window_color(VideoMode(400, 400), "Colors", Style::Titlebar);
 	short snake_color_over, snake_color_for_purple;
@@ -984,24 +1175,27 @@ void menu_of_color(string& string, Sprite& sprite_main_menu_field, float delay, 
 				{
 					if ((p_color.mouseButton.x >= 132 && p_color.mouseButton.x <= 267) && (p_color.mouseButton.y >= 90 && p_color.mouseButton.y <= 150))
 					{
-						snake_color_over = 255;
-						snake_color_for_purple = 0;
+						snake_color_over = SNAKE_COLOR_OVER;
+						snake_color_for_purple = SNAKE_COLOR_FOR_PURPLE;
 						window_color.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 					else if ((p_color.mouseButton.x >= 134 && p_color.mouseButton.x <= 267) && (p_color.mouseButton.y >= 170 && p_color.mouseButton.y <= 230))
 					{
-						snake_color_over = 0;
-						snake_color_for_purple = 255;
+						snake_color_over = SNAKE_COLOR_OVER_;
+						snake_color_for_purple = SNAKE_COLOR_FOR_PURPLE_;
 						window_color.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 					else if ((p_color.mouseButton.x >= 124 && p_color.mouseButton.x <= 280) && (p_color.mouseButton.y >= 252 && p_color.mouseButton.y <= 312))
 					{
-						snake_color_over = 255;
-						snake_color_for_purple = 255;
+						snake_color_over = SNAKE_COLOR_FOR_PURPLE__;
+						snake_color_for_purple = SNAKE_COLOR_OVER__;
 						window_color.close();
-						start_window_of_game(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level);
+						start_window_of_game(string, sprite_main_menu_field, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+						return;
 					}
 				}
 			}
@@ -1020,7 +1214,7 @@ void menu_of_color(string& string, Sprite& sprite_main_menu_field, float delay, 
 	}
 }
 
-void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0.01, short total_elemets = 100, short snake_color_over = 255, short snake_color_for_purple = 0, short value_for_show_level = 0)
+void start_window_of_game(string& string, Sprite& sprite_main_menu_field, float delay = 0.3, float delay_tap = 0.01, short total_elements = 30, short snake_color_over = 255, short snake_color_for_purple = 0, short value_for_show_level = 0, bool Switch = 0)
 {
 	Music music_;
 	music_.openFromFile("Jumping_Wall.wav");
@@ -1048,6 +1242,7 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 			{
 				window_head.close();
 				music_.stop();
+				return;
 			}
 			    
 
@@ -1062,12 +1257,14 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 							window_head.close();
 							music_.stop();
 							start(string, delay, delay_tap, total_elements, snake_color_over, snake_color_for_purple, value_for_show_level, Switch);
+							return;
 						}
 						else if (p_head.mouseButton.y >= 154 && p_head.mouseButton.y <= 195)
 						{
 							window_head.close();
 							music_.stop();
 							menu_of_level(string, sprite_main_menu_field, snake_color_over, snake_color_for_purple, Switch);
+							return;
 							
 						}
 						else if (p_head.mouseButton.y >= 224 && p_head.mouseButton.y <= 269)
@@ -1075,6 +1272,7 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 							window_head.close();
 							music_.stop();
 							menu_of_color(string, sprite_main_menu_field, delay, delay_tap, total_elements, value_for_show_level, Switch);
+							return;
 							
 						}
 						else if (p_head.mouseButton.y >= 294 && p_head.mouseButton.y <= 369)
@@ -1082,7 +1280,7 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 							window_head.close();
 							music_.stop();
 							menu_of_table_of_leaders(string, sprite_main_menu_field, delay, delay_tap, total_elements, value_for_show_level, snake_color_over, snake_color_for_purple, Switch);
-							
+							return;
 						}
 					}
 				}
@@ -1105,8 +1303,12 @@ void start_window_of_game(string& string, float delay = 0.3, float delay_tap = 0
 	}
 }
 
-void menu_of_end_of_game(string& string)
+void menu_of_end_of_game(string& string, bool check)
 {
+	SoundBuffer sound_buffer_of_end;
+	sound_buffer_of_end.loadFromFile("Final_blow.wav");
+	Sound end_sound(sound_buffer_of_end);
+
 	RenderWindow window_end_of_game(VideoMode(400, 400), "If you think you ready", Style::Titlebar);
 	const char string_of_end[] = "You lose, try agian if you don't afraid;)";
 	Font font_of_symbols;
@@ -1117,15 +1319,30 @@ void menu_of_end_of_game(string& string)
 	text_for_end.setCharacterSize(22);
 	text_for_end.setFillColor(Color::Black);
 
+	Texture texture_cup;
+	texture_cup.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Cup.png");
+    Sprite sprite_cup(texture_cup);
+	Text text_for_win;
+	text_for_win.setFont(font_of_symbols);
+	text_for_win.setString("You won, but don't relax:)");
+	text_for_win.setCharacterSize(22);
+	text_for_win.setFillColor(Color::Black);
+	text_for_win.setPosition(30, 40);
+	
+	
 	Texture texture_main_menu_field, texture_bottons_restart, texture_bottons_exit;
 	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
 	texture_bottons_restart.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_restart.png");
 	texture_bottons_exit.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_exit.png");
 
 	Sprite sprite_main_menu_field(texture_main_menu_field), sprite_bottons_restart(texture_bottons_restart), sprite_bottons_exit(texture_bottons_exit);
+	
+	if (!check)
+		end_sound.play();
 
 	while (window_end_of_game.isOpen())
 	{
+
 		Event p_end_of_game;
 
 		while (window_end_of_game.pollEvent(p_end_of_game))
@@ -1137,23 +1354,36 @@ void menu_of_end_of_game(string& string)
 					if (p_end_of_game.mouseButton.x > 50 && p_end_of_game.mouseButton.x < 187 && p_end_of_game.mouseButton.y > 90 && p_end_of_game.mouseButton.y < 145)
 					{
 						window_end_of_game.close();
-						start_window_of_game(string, 0.3, 0.01, 100, 255, 0, 0);
+						start_window_of_game(string, sprite_main_menu_field, 0.3, 0.01, 30, 255, 0, 0);
+						return;
 					}
 
 					else if (p_end_of_game.mouseButton.x > 231 && p_end_of_game.mouseButton.x < 350 && p_end_of_game.mouseButton.y > 90 && p_end_of_game.mouseButton.y < 145)
+					{
 						window_end_of_game.close();
+						return;
+					}
 				}
 			}
 		}
-
 
 		window_end_of_game.draw(sprite_main_menu_field);
 		sprite_bottons_restart.setPosition(50, 90);
 		sprite_bottons_exit.setPosition(231, 90);
 		window_end_of_game.draw(sprite_bottons_restart);
 		window_end_of_game.draw(sprite_bottons_exit);
-		text_for_end.setPosition(15, 40);
-		window_end_of_game.draw(text_for_end);
+
+		if (!check)
+		{
+			text_for_end.setPosition(15, 40);
+			window_end_of_game.draw(text_for_end);
+		}
+		else
+		{
+			window_end_of_game.draw(text_for_win);
+			sprite_cup.setPosition(285, 5);
+			window_end_of_game.draw(sprite_cup);
+		}
 
 		window_end_of_game.display();
 	}
