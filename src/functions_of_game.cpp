@@ -6,6 +6,7 @@ const int height = 20; // height of field
 const int width = 40; // width of field
 int Field[height][width] = { 0 };
 
+
 template <typename T>
 T data_base::return_func(T value)
 {
@@ -34,6 +35,13 @@ ofstream data_base::return_func_4()
 	return object;
 }
 
+//void data_base::init_values(string name, string level_, int score_)
+//{
+//	name_of_player = name;
+//	level = level_;
+//	name_of_player = score_;
+//}
+
 data_base::data_base(string m1 = "", string m2 = "", int m3 = 0) : name_of_player(m1), level(m2), score(m3)
 {}
 	
@@ -48,6 +56,52 @@ ostream& operator << (ostream& object, data_base const& object_1)
 {
 	object << object_1.name_of_player << " " << object_1.level << " " << object_1.score << endl;
 	return object;
+}
+
+void data_base::preparing_data_base()
+{
+
+	ifstream file_object("file_for_data_about_players.txt", ios::in);
+	vector <data_base> data_of_players;
+
+	do
+	{
+		data_base intermediate_object;
+		file_object >> intermediate_object;
+		data_of_players.push_back(intermediate_object);
+	} while (file_object);
+
+	file_object.close();
+
+
+	data_base promejyt;
+	short count = 1;
+
+	while (count > 0)
+	{
+		count = 0;
+		for (int i = 0; i < data_of_players.size() - 1; ++i)
+		{
+			if (data_of_players[i].return_func_3() < data_of_players[i + 1].return_func_3())
+			{
+				promejyt = data_of_players[i];
+				data_of_players[i] = data_of_players[i + 1];
+				data_of_players[i + 1] = promejyt;
+				count++;
+			}
+		}
+	}
+
+	data_of_players.erase(data_of_players.begin() + (data_of_players.size() - 1));
+
+	if (data_of_players.size() >= size_t(10))
+	{
+		ofstream file_object_1("file_for_data_about_players.txt");
+		data_of_players.erase(data_of_players.begin() + (data_of_players.size() - 1));
+		for (size_t i = 0; i < data_of_players.size(); ++i)
+			file_object_1 << data_of_players[i].return_func_1() << " " << data_of_players[i].return_func_2() << " " << data_of_players[i].return_func_3() << endl;
+		file_object_1.close();
+	}
 }
 
 snake_head random_snake_head()
@@ -140,10 +194,8 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 	Sound sound_event(sound_buffer), sound_event_1(sound_buffer_1);
 
 
-	
 	RenderWindow window(VideoMode(950, 400), "Snake 2D!", Style::Close);
 
-	/*srand(time(0));*/
 	Clock clock_object;
 	data_base current_player;
 	float time_;
@@ -158,13 +210,13 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 	short counter_of_body = 2;
 
 	Texture texture_snake_head, texture_snake_body, texture_money_pack, texture_playing_field;
-	texture_snake_head.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Snake_head.jpg");
-	texture_snake_body.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Snake_body.jpg");
-	texture_money_pack.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Money_pack.jpg");
-	texture_playing_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\playing_field_1.png");
+	texture_snake_head.loadFromFile("Snake_head.png");
+	texture_snake_body.loadFromFile("Snake_body.jpg");
+	texture_money_pack.loadFromFile("Money_pack.jpg");
+	texture_playing_field.loadFromFile("playing_field_1.png");
 	Font font_of_symbols;
 	Text text_for_level, text_from_symbols, text_from_symbols_1, text_from_symbols_2, text_from_symbols_3, text_from_symbols_4, text_from_symbols_5, text_from_symbols_6, body_counts, body_counts_, body_counts1, body_counts2;
-	font_of_symbols.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
+	font_of_symbols.loadFromFile("File_of_font.ttf");
 	text_from_symbols.setFont(font_of_symbols);
 	text_from_symbols.setString("Level:");
 	text_from_symbols.setCharacterSize(15);
@@ -259,7 +311,7 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 
 	text_from_symbols_4.setString(string1);
 
-
+	
 	while (window.isOpen())
 	{
 		srand(time(0));
@@ -282,16 +334,18 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 					for (size_t j = 0; j < 40; ++j)
 						Field[i][j] = 0;
 
-				preparing_data_base();
+
 				current_player.name_of_player = string1;
 				current_player.level = string_for_level;
 				current_player.score = value_of_score;
 				current_player.return_func_4() << current_player;
 				current_player.return_func_4().close();
+				current_player.preparing_data_base();
+				/*current_player.init_values(string1, string_for_level, value_of_score);*/
 				menu_of_end_of_game(string1, 0);
 				return;
 			}
-
+			
 			if (p.type == Event::KeyPressed)
 			{
 				if ((Keyboard::isKeyPressed(Keyboard::Up)) && (!Down1))
@@ -476,12 +530,14 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				for (size_t j = 0; j < 40; ++j)
 					Field[i][j] = 0;
 
-			preparing_data_base();
+			
 			current_player.name_of_player = string1;
 			current_player.level = string_for_level;
 			current_player.score = value_of_score;
+			/*current_player.init_values(string1, string_for_level, value_of_score);*/
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
+			current_player.preparing_data_base();
 			menu_of_end_of_game(string1, 0);
 			return;
 		}
@@ -709,12 +765,14 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 				for (size_t j = 0; j < 40; ++j)
 					Field[i][j] = 0;
 
-			preparing_data_base();
+
 			current_player.name_of_player = string1;
 			current_player.level = string_for_level;
 			current_player.score = value_of_score;
+			/*current_player.init_values(string1, string_for_level, value_of_score);*/
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
+			current_player.preparing_data_base();
 			menu_of_end_of_game(string1, 1);
 			return;
 		}
@@ -809,12 +867,12 @@ void menu_of_field_for_input()
 {	
 	RenderWindow input_window(VideoMode(400, 400), "Field for input", Style::Titlebar);
 	Texture texture_main_menu_field, texture_field_for_input;
-	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
-	texture_field_for_input.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Field_for_input.png");
+	texture_main_menu_field.loadFromFile("Main_menu_field.png");
+	texture_field_for_input.loadFromFile("Field_for_input.png");
 	Sprite sprite_main_menu_field(texture_main_menu_field), sprite_field_for_input(texture_field_for_input);
 	Color sprite_color = sprite_field_for_input.getColor();
 	Font font_of_nickname_symbols;
-	font_of_nickname_symbols.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
+	font_of_nickname_symbols.loadFromFile("File_of_font.ttf");
 	Text nickname_symbols, template_text;
 	nickname_symbols.setFont(font_of_nickname_symbols);
 	nickname_symbols.setCharacterSize(32);
@@ -881,58 +939,12 @@ void menu_of_field_for_input()
 	}
 }
 
-void preparing_data_base()
-{
-
-	ifstream file_object("file_for_data_about_players.txt", ios::in);
-	vector <data_base> data_of_players;
-	
-	do
-	{
-		data_base intermediate_object;
-		file_object >> intermediate_object;
-		data_of_players.push_back(intermediate_object);
-	} while (file_object);
-
-	file_object.close();
-
-
-	data_base promejyt;
-	short count = 1;
-
-	while (count > 0)
-	{
-		count = 0;
-		for (int i = 0; i < data_of_players.size() - 1; ++i)
-		{
-			if (data_of_players[i].return_func_3() < data_of_players[i + 1].return_func_3())
-			{
-				promejyt = data_of_players[i];
-				data_of_players[i] = data_of_players[i + 1];
-				data_of_players[i + 1] = promejyt;
-				count++;
-			}
-		}
-	}
-
-	data_of_players.erase(data_of_players.begin() + (data_of_players.size() - 1));
-
-	if (data_of_players.size() >= size_t(10))
-	{
-		ofstream file_object_1("file_for_data_about_players.txt");
-		data_of_players.erase(data_of_players.begin() + (data_of_players.size() - 1));
-		for (size_t i = 0; i < data_of_players.size(); ++i)
-			file_object_1 << data_of_players[i].return_func_1() << " " << data_of_players[i].return_func_2() << " " << data_of_players[i].return_func_3() << endl;
-		file_object_1.close();
-	}
-}
-
 void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, float delay, float delay_tap, short total_elements, short value_for_show_level, short snake_color_over, short snake_color_for_purple, bool Switch)
 {
 	RenderWindow window_of_show_data_about_players(VideoMode(400, 400), "Table of leaders", Style::Close);
 	ifstream file_object("file_for_data_about_players.txt", ios::in);
 	Texture texture_field_for_table;
-	texture_field_for_table.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Field_for_table.png");
+	texture_field_for_table.loadFromFile("Field_for_table.png");
 
 	Sprite sprite_field_for_table(texture_field_for_table);
 	vector <data_base> data_of_players;
@@ -985,7 +997,7 @@ void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, fl
 
 		Font font_of_symbols_;
 		Text text_from_symbols_[3];
-		font_of_symbols_.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
+		font_of_symbols_.loadFromFile("File_of_font.ttf");
 		short y = 35, value_for_func_from_data_base = 0, x = 68;
 
 		for (int i = 0; i < data_of_players.size(); ++i)
@@ -1042,10 +1054,10 @@ void menu_of_level(string& string, Sprite& sprite_main_menu_field, short snake_c
 
 	RenderWindow window_level(VideoMode(400, 400), "Level", Style::Titlebar);
 	Texture texture_bottons_easy, texture_bottons_medium, texture_bottons_hard, texture_bottons_unbearable;
-	texture_bottons_easy.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_easy.png");
-	texture_bottons_medium.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_medium.png");
-	texture_bottons_hard.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_hard.png");
-	texture_bottons_unbearable.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_unbearable.png");
+	texture_bottons_easy.loadFromFile("Bottons_easy.png");
+	texture_bottons_medium.loadFromFile("Bottons_medium.png");
+	texture_bottons_hard.loadFromFile("Bottons_hard.png");
+	texture_bottons_unbearable.loadFromFile("Bottons_unbearable.png");
 
 	Sprite sprite_bottons_easy(texture_bottons_easy), sprite_bottons_medium(texture_bottons_medium), sprite_bottons_hard(texture_bottons_hard), sprite_bottons_unbearable(texture_bottons_unbearable);
 
@@ -1125,9 +1137,9 @@ void menu_of_color(string& string, Sprite& sprite_main_menu_field, float delay, 
 
 	Texture texture_bottons_color_purple, texture_bottons_color_red, texture_bottons_color_blue;
 
-	texture_bottons_color_purple.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_color_purple.png");
-	texture_bottons_color_red.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_color_red.png");
-	texture_bottons_color_blue.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_color_blue.png");
+	texture_bottons_color_purple.loadFromFile("Bottons_color_purple.png");
+	texture_bottons_color_red.loadFromFile("Bottons_color_red.png");
+	texture_bottons_color_blue.loadFromFile("Bottons_color_blue.png");
 
 	Sprite sprite_bottons_purple(texture_bottons_color_purple), sprite_bottons_red(texture_bottons_color_red), sprite_bottons_blue(texture_bottons_color_blue);
 
@@ -1192,11 +1204,11 @@ void start_window_of_game(string& string, Sprite& sprite_main_menu_field, float 
 	RenderWindow window_head(VideoMode(400, 400), "Main Menu", Style::Close);
 
 	Texture texture_main_menu_field, texture_bottons_level, texture_bottons_snake_color, texture_bottons_start_game, texture_title, texture_bottons_data_of_players;
-	texture_title.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\title.png");
-	texture_bottons_start_game.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_start_game.png");
-	texture_bottons_level.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_level.png");
-	texture_bottons_snake_color.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_snake_color.png");
-	texture_bottons_data_of_players.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_table_of_leaders.png");
+	texture_title.loadFromFile("title.png");
+	texture_bottons_start_game.loadFromFile("Bottons_start_game.png");
+	texture_bottons_level.loadFromFile("Bottons_level.png");
+	texture_bottons_snake_color.loadFromFile("Bottons_snake_color.png");
+	texture_bottons_data_of_players.loadFromFile("Bottons_table_of_leaders.png");
 	Sprite sprite_bottons_level(texture_bottons_level), sprite_bottons_snake_color(texture_bottons_snake_color), sprite_bottons_start_game(texture_bottons_start_game), sprite_title(texture_title), sprite_bottons_data_of_players(texture_bottons_data_of_players);
 	bool turn_sound = true;
 
@@ -1280,7 +1292,7 @@ void menu_of_end_of_game(string& string, bool check)
 	RenderWindow window_end_of_game(VideoMode(400, 400), "If you think you ready", Style::Titlebar);
 	const char string_of_end[] = "You lose, try agian if you don't afraid;)";
 	Font font_of_symbols;
-	font_of_symbols.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\File_of_font.ttf");
+	font_of_symbols.loadFromFile("File_of_font.ttf");
 	Text text_for_end;
 	text_for_end.setFont(font_of_symbols);
 	text_for_end.setString(string_of_end);
@@ -1288,7 +1300,7 @@ void menu_of_end_of_game(string& string, bool check)
 	text_for_end.setFillColor(Color::Black);
 
 	Texture texture_cup;
-	texture_cup.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Cup.png");
+	texture_cup.loadFromFile("Cup.png");
     Sprite sprite_cup(texture_cup);
 	Text text_for_win;
 	text_for_win.setFont(font_of_symbols);
@@ -1299,9 +1311,9 @@ void menu_of_end_of_game(string& string, bool check)
 	
 	
 	Texture texture_main_menu_field, texture_bottons_restart, texture_bottons_exit;
-	texture_main_menu_field.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Main_menu_field.png");
-	texture_bottons_restart.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_restart.png");
-	texture_bottons_exit.loadFromFile("C:\\Users\\leo71\\source\\repos\\Змейка 2D\\Bottons_exit.png");
+	texture_main_menu_field.loadFromFile("Main_menu_field.png");
+	texture_bottons_restart.loadFromFile("Bottons_restart.png");
+	texture_bottons_exit.loadFromFile("Bottons_exit.png");
 
 	Sprite sprite_main_menu_field(texture_main_menu_field), sprite_bottons_restart(texture_bottons_restart), sprite_bottons_exit(texture_bottons_exit);
 	
