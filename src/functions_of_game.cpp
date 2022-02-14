@@ -1,4 +1,4 @@
-#include "Consts.h"
+#include "Consts.hpp"
 
 
 snake_head head;
