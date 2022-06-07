@@ -1,4 +1,4 @@
-#include "Consts.h"
+#include "consts.h"
 
 
 snake_head head;
@@ -35,13 +35,6 @@ ofstream data_base::return_func_4()
 	return object;
 }
 
-//void data_base::init_values(string name, string level_, int score_)
-//{
-//	name_of_player = name;
-//	level = level_;
-//	name_of_player = score_;
-//}
-
 data_base::data_base(string m1 = "", string m2 = "", int m3 = 0) : name_of_player(m1), level(m2), score(m3)
 {}
 	
@@ -58,6 +51,33 @@ ostream& operator << (ostream& object, data_base const& object_1)
 	return object;
 }
 
+vector <data_base>& data_sorting(vector <data_base>& data_of_players)
+{
+	data_base promejyt;
+	size_t g;
+	size_t count;
+	double start_time = clock();
+	for (g = data_of_players.size() / 2; g > 0; g /= 2)
+	{
+		do {
+			count = 0;
+			for (int i = 0; i < data_of_players.size() - g; ++i)
+			{
+				if (data_of_players[i].return_func_3() < data_of_players[i + g].return_func_3())
+				{
+					promejyt = data_of_players[i];
+					data_of_players[i] = data_of_players[i + g];
+					data_of_players[i + g] = promejyt;
+					count++;
+				}
+			}
+
+		} while (count > 0);
+	}
+
+	return data_of_players;
+}
+
 void data_base::preparing_data_base()
 {
 
@@ -72,6 +92,10 @@ void data_base::preparing_data_base()
 	} while (file_object);
 
 	file_object.close();
+
+	//sorting
+
+	data_of_players = data_sorting(data_of_players);
 
 	data_of_players.erase(data_of_players.begin() + (data_of_players.size() - 1));
 
@@ -515,7 +539,6 @@ void start(string& string1, float delay = 0.3, float delay_tap = 0.01, short tot
 			current_player.name_of_player = string1;
 			current_player.level = string_for_level;
 			current_player.score = value_of_score;
-			/*current_player.init_values(string1, string_for_level, value_of_score);*/
 			current_player.return_func_4() << current_player;
 			current_player.return_func_4().close();
 			current_player.preparing_data_base();
@@ -940,24 +963,8 @@ void menu_of_table_of_leaders(string& string, Sprite& sprite_main_menu_field, fl
 
 	// sorting
 
-	data_base promejyt;
-	short count = 1;
-
-	while (count > 0)
-	{
-		count = 0;
-		for (size_t i = 0; i < data_of_players.size() - 1; ++i)
-		{
-			if (data_of_players[i].return_func_3() < data_of_players[i + 1].return_func_3())
-			{
-				promejyt = data_of_players[i];
-				data_of_players[i] = data_of_players[i + 1];
-				data_of_players[i + 1] = promejyt;
-				count++;
-			}
-		}
-	}
-
+	data_of_players = data_sorting(data_of_players);
+	
 	if (data_of_players.size() > COUNT_OF_RECORDS_FOR_SHOW)
 		data_of_players.erase(data_of_players.begin() + COUNT_OF_RECORDS_FOR_SHOW, data_of_players.begin() + data_of_players.size() - 1);
 			

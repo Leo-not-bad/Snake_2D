@@ -33,13 +33,13 @@ public:
 
 	void preparing_data_base();
 
-
 	friend istream& operator >> (istream& object, data_base& object_1);
 
 	friend ostream& operator << (ostream& object, data_base const& object_1);
 
 };
 
+vector <data_base>& data_sorting(vector <data_base>&);
 void menu_of_field_for_input();
 void start(string&, float, float, short, short, short, short, bool);
 void start_window_of_game(string&, Sprite&, float, float, short, short, short, short, bool);
